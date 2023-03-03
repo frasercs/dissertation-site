@@ -1,12 +1,21 @@
+
 document.addEventListener('DOMContentLoaded', function () {
-    var btn = document.getElementById('diagnosis-btn');
-    var select = document.getElementById('animal-select');
-    var diagnoseUrl = 'https://frasercs.pythonanywhere.com/api/diagnose/';
-    var animalListUrl = 'https://frasercs.pythonanywhere.com/api/data/valid_animals'
-    var signsUrl = 'https://frasercs.pythonanywhere.com/api/signs/'
-    var diagnosis = null;
+    const loader = document.querySelector('#loading');
+    const btn = document.getElementById('diagnosis-btn');
+    const select = document.getElementById('animal-select');
+    const diagnoseUrl = 'https://frasercs.pythonanywhere.com/api/diagnose/';
+    const animalListUrl = 'https://frasercs.pythonanywhere.com/api/data/valid_animals'
+    const signsUrl = 'https://frasercs.pythonanywhere.com/api/signs/'
+    const diseasesUrl = 'https://frasercs.pythonanywhere.com/api/data/'
+    let diagnosis = null;
     if(btn && select){
-        btn.addEventListener('click', function () {
+
+        btn.addEventListener('click', diagnoseHandler);
+        select.addEventListener('change', animalHandler);
+        getAnimalList();
+
+        function diagnoseHandler(event){
+            displayLoading();
             data = getData();
             console.log(JSON.stringify(data));
             fetch(diagnoseUrl, {
@@ -18,14 +27,34 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify(data)
             })
                 .then(function (response) { return response.json(); })
-                .then(function (json) { displayResults(json) })["catch"](function (error) { return console.error(error); });
-        });
-        select.addEventListener('change', function () {
+                .then(function (json) { 
+                    hideLoading()
+                    displayResults(json)
+                    console.log("pls") })["catch"](function (error) { return console.error(error); });
+            }
+
+
+        function animalHandler(event){
             var animal = select.value;
-            fetch(signsUrl + animal)
+            fetch(diseasesUrl + animal)
                 .then(function (response) { return response.json(); })
-                .then(function (json) { populatePage(json) })["catch"](function (error) { return console.error(error); });
-        });
+                .then(function (json) { 
+                    populatePageSigns(json.signs)
+                    populatePageDiseases(json.diseases)
+                 })["catch"](function (error) { return console.error(error); });
+        }
+
+
+        function displayLoading(){
+            loader.classList.add("display");
+            setTimeout(() => {
+                loader.classList.remove("display");
+                }, 60000);
+        }
+
+        function hideLoading(){
+            loader.classList.remove("display");
+        }
 
 
         function getAnimalList() {
@@ -35,8 +64,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     populateSelect(json);
                 })["catch"](function (error) { return console.error(error); });
         }
-        getAnimalList();
-        
         
         function addOption(text, value) {
             var option = document.createElement('OPTION');
@@ -45,7 +72,6 @@ document.addEventListener('DOMContentLoaded', function () {
             option.appendChild(text);
             select.appendChild(option);
         }
-        addOption('Select an animal', 'select');
         
         function populateSelect(animals) {
             for (var i = 0; i < animals.length; i++) {
@@ -55,7 +81,8 @@ document.addEventListener('DOMContentLoaded', function () {
         
         function addSign(sign){
             var div = document.createElement('div');
-            div.setAttribute('class', sign);
+            div.setAttribute('id', sign);
+            div.setAttribute('class', "flex-container");
 
             var signText = document.createTextNode(sign + ': ');
             div.appendChild(signText);
@@ -65,13 +92,14 @@ document.addEventListener('DOMContentLoaded', function () {
             present.setAttribute('type', 'radio');
             present.setAttribute('name', sign);
             present.setAttribute('value', 1);
-            present.setAttribute('checked', 'checked');
+            
             
             var notObserved = document.createElement("INPUT")
             var notObservedText = document.createTextNode('Not Observed');
             notObserved.setAttribute('type', 'radio');
             notObserved.setAttribute('name', sign);
             notObserved.setAttribute('value', 0);
+            notObserved.setAttribute('checked', 'checked');
 
             var notPresent = document.createElement("INPUT")
             var notPresentText = document.createTextNode('Not Present');
@@ -87,8 +115,27 @@ document.addEventListener('DOMContentLoaded', function () {
             div.appendChild(notPresentText);
             document.getElementById('signs').appendChild(div);
         }
+
+
+        function addPrior(prior){
+            var div = document.createElement('div');
+            div.setAttribute('id', prior);
+
+            var priorText = document.createTextNode(prior + ': ');
+            div.appendChild(priorText);
+
+            var value = document.createElement("INPUT")
+            value.setAttribute('type', 'number');
+            value.setAttribute('name', prior);
+            value.setAttribute('value', 0);
+            value.setAttribute('min', 0);
+            value.setAttribute('max', 100);
+            value.setAttribute('step', 1);
+            div.appendChild(value);
+            document.getElementById("priors").appendChild(div);
+        }
         
-        function populatePage(signs)
+        function populatePageSigns(signs)
         {
             var div = document.getElementById('signs');
             while (div.firstChild) {
@@ -98,24 +145,54 @@ document.addEventListener('DOMContentLoaded', function () {
             for (var i = 0; i < signs.length; i++) {
                 addSign(signs[i]);
             }
-
         }
+        function populatePageDiseases(priors)
+        {
+            var div = document.getElementById('priors');
+            while (div.firstChild) {
+                div.removeChild(div.firstChild);
+            }
+
+            
+            for (var i = 0; i < priors.length; i++) {
+                addPrior(priors[i]);
+            }
+        }
+
         function getData() {
             var signs = document.getElementById('signs').children;
+            var priors = document.getElementById('priors').children;
             var data = {
                 animal: select.value,
                 signs: {
                     
+                },
+                priors: {
+
                 }
             }
             for (var i = 0; i < signs.length; i++) {
-                var sign = signs[i].className;
+                var sign = signs[i].id;
                 var value = signs[i].querySelector('input:checked').value;
                 var number = parseInt(value);
                 data.signs[sign] = number;
             }
+            var total = 0;
+            for (var i = 0; i < priors.length; i++) {
+                var prior = priors[i].id;
+                var priorvalue = parseInt(priors[i].querySelector('input').value);
+                total += priorvalue;             
+                data.priors[prior] = priorvalue;
+            }
+            console.log("total: " + total + " " + typeof(total));
+            if(total != 100){
+                alert('Priors must add up to 100%');
+                return;
+            
+            }
             return data;
         }
+
 
         function displayResults(data) {
 
@@ -149,5 +226,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         }
+
     }
 });
