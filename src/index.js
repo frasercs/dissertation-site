@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         function addSign(sign, signText){
             var div = document.createElement('div');
-            div.setAttribute('id', sign + '-div');
+            div.setAttribute('id', sign);
             div.setAttribute('class', 'form-group');
             
 
