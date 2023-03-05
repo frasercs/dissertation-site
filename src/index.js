@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         function animalHandler(event){
+            displayLoading();
             var animal = select.value;
             var signs = null;
             var texts = null;
@@ -57,7 +58,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(function (json) {
                     texts = json.full_names_and_codes;
                  })["catch"](function (error) { return console.error(error); });
+                 ;
             setTimeout(() => {
+                hideLoading();
                 populatePageSigns(signs, texts);
                 populatePagePriors(priors)
             }, 1000);
@@ -111,38 +114,69 @@ document.addEventListener('DOMContentLoaded', function () {
         
         function addSign(sign, signText){
             var div = document.createElement('div');
-            div.setAttribute('id', sign);
-            //div.setAttribute('class', "flex-container");
+            div.setAttribute('id', sign + '-div');
+            div.setAttribute('class', 'form-group');
+            
 
             var signText = document.createTextNode(signText + ': ');
             div.appendChild(signText);
 
+            var presentDiv = document.createElement('div');
+            presentDiv.setAttribute('class', 'form-check form-check-inline');
+            presentDiv.setAttribute('id', sign + '-present-div');
             var present = document.createElement("INPUT")
-            var presentText = document.createTextNode('Present');
+            var presentText = 'Present'
+            present.setAttribute('class', "form-check-input")
             present.setAttribute('type', 'radio');
             present.setAttribute('name', sign);
             present.setAttribute('value', 1);
+            var presentLabel = document.createElement('label');
+            presentLabel.appendChild(document.createTextNode(presentText));
+            presentLabel.setAttribute('for', present);
+            presentLabel.setAttribute('class', 'form-check-label');
             
             
+            var notObservedDiv = document.createElement('div');
+            notObservedDiv.setAttribute('class', 'form-check form-check-inline');
+            notObservedDiv.setAttribute('id', sign + '-notObserved-div');
             var notObserved = document.createElement("INPUT")
-            var notObservedText = document.createTextNode('Not Observed');
+            var notObservedText = 'Not Observed'
+            notObserved.setAttribute('class', "form-check-input")
             notObserved.setAttribute('type', 'radio');
             notObserved.setAttribute('name', sign);
             notObserved.setAttribute('value', 0);
             notObserved.setAttribute('checked', 'checked');
+            var notObservedLabel = document.createElement('label');
+            notObservedLabel.appendChild(document.createTextNode(notObservedText));
+            notObservedLabel.setAttribute('for', notObserved);
+            notObservedLabel.setAttribute('class', 'form-check-label');
 
+            var notPresentDiv = document.createElement('div');
+            notPresentDiv.setAttribute('class', 'form-check form-check-inline');
+            notPresentDiv.setAttribute('id', sign + '-notPresent-div');
             var notPresent = document.createElement("INPUT")
-            var notPresentText = document.createTextNode('Not Present');
+            notPresentText = 'Not Present'
+            notPresent.setAttribute('class', "form-check-input")
             notPresent.setAttribute('type', 'radio');
             notPresent.setAttribute('name', sign);
             notPresent.setAttribute('value', -1);
+            var notPresentLabel = document.createElement('label');
+            notPresentLabel.appendChild(document.createTextNode(notPresentText));
+            notPresentLabel.setAttribute('for', notPresent);
+            notPresentLabel.setAttribute('class', 'form-check-label');
 
-            div.appendChild(present);
-            div.appendChild(presentText);
-            div.appendChild(notObserved);
-            div.appendChild(notObservedText);
-            div.appendChild(notPresent);
-            div.appendChild(notPresentText);
+            div.appendChild(presentDiv);
+            presentDiv.appendChild(present);
+            presentDiv.appendChild(presentLabel);
+
+            div.appendChild(notObservedDiv);
+            notObservedDiv.appendChild(notObserved);
+            notObservedDiv.appendChild(notObservedLabel);
+
+            div.appendChild(notPresentDiv);
+            notPresentDiv.appendChild(notPresent);
+            notPresentDiv.appendChild(notPresentLabel);
+
             document.getElementById('signs').appendChild(div);
         }
 
@@ -177,7 +211,6 @@ document.addEventListener('DOMContentLoaded', function () {
             while (div.firstChild) {
                 div.removeChild(div.firstChild);
             }
-            div.appendChild(document.createTextNode('Signs:'));
             
             for (var i = 0; i < signs.length; i++) {
                 var signCode = signs[i];
@@ -191,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function () {
             while (div.firstChild) {
                 div.removeChild(div.firstChild);
             }
-            div.appendChild(document.createTextNode('Priors:'));
             
             for (var i = 0; i < priors.length; i++) {
                 if(i == priors.length - 1){
