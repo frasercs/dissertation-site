@@ -1,33 +1,42 @@
 <!DOCTYPE html>
-<html class = "dark">
-<head>
-    <title>Animal Diagnosis</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="index.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="index.css">
-</head>
-<body>
-    <div class= "grid h-screen place-items-center">
-        <h1 class ="text-3xl font-bold underline px-4 py-4">Animal Diagnosis Form</h1>
-    
-    <div class="rounded-lg px-6 py-8 ring-1 ring-slate-900/5">
-        <label for="animal-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an option</label>
-        <select id="animal-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-            <option selected>Choose an animal</option>
-        </select>
-    </div>
-    <div class = "flex">
-        <div class = "flex flex-1">
-            <div id="priors" class="grid-flow-row-dense grid-cols-3 grid-rows-3"></div>
-        </div>
-        <div id="signs" class="px-10 py-4">
-    </div>
-    </div>
-    <button id="diagnosis-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-10 m-10 rounded">Diagnose</button>
+<html class="dark">
 
-    <div id="loading"></div>
-    <div id="results" class="px-10 py-4">
+<head>
+  <title>Animal Diagnosis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="index.js" defer></script>
+  <link rel="stylesheet" type="text/css" href="index.css">
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900">
+  <div class="container mx-auto py-6">
+    <h1 class="text-3xl font-bold underline px-4 py-4 text-center text-gray-900 dark:text-white">Animal Diagnosis Form</h1>
+
+    <div class="mx-auto mt-10 rounded-lg shadow-lg bg-white dark:bg-gray-800 w-full sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-2/5">
+      <label for="animal-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white px-4 py-2">Select an option</label>
+      <select id="animal-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 px-4 mb-4">
+        <option selected>Choose an animal</option>
+      </select>
     </div>
+    <div id="prior-checkbox_div" class="flex justify-center items-center">
+        <input type="checkbox" id="prior-checkbox" name="prior-checkbox" value="prior-checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+        <label for="prior_checkbox" class="ml-2 text-sm text-gray-600 dark:text-gray-400">Set your own priors (leave unchecked if you wish to allow the API to use default, equal, priors)</label>
+    </div>
+
+    <div id="sign-and-prior-container" class="flex justify-center items-center mt-10 .mx-auto">
+        <div id="priors" class="w-full sm:w-1/2 lg:w-1/2 px-4 mb-4 flex flex-col justify-center items-center"></div>
+        <div id="signs" class="w-full sm:w-1/2 lg:w-1/2 px-4 mb-4 flex flex-col justify-center items-center"></div>
+      </div>
+
+    <div id="diagnosis-btn-div" class="flex justify-center mt-10">
+      <button id="diagnosis-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded">Diagnose</button>
+    </div>
+
+    <div id="loading" class="mt-10"></div>
+
+    <div id="results" class="mx-auto mt-10 rounded-lg shadow-lg bg-white dark:bg-gray-800 w-full sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-2/5">
+    </div>
+  </div>
 </body>
 
 </html>

@@ -3,21 +3,27 @@ document.addEventListener('DOMContentLoaded', function () {
     const loader = document.querySelector('#loading');
     const btn = document.getElementById('diagnosis-btn');
     const select = document.getElementById('animal-select');
+    const checkbox = document.getElementById('prior-checkbox');
     const diagnoseUrl = 'https://frasercs.pythonanywhere.com/api/diagnose/';
     const animalListUrl = 'https://frasercs.pythonanywhere.com/api/data/valid_animals'
-    const signsUrl = 'https://frasercs.pythonanywhere.com/api/signs/'
-    const diseasesUrl = 'https://frasercs.pythonanywhere.com/api/data/'
+    const diseasesUrl = 'https://frasercs.pythonanywhere.com/api/data/animal_details/'
+    const signsAndCodesUrl = 'https://frasercs.pythonanywhere.com/api/data/signs_and_codes/'
     let diagnosis = null;
-    if(btn && select){
+    if(btn && select && checkbox){
 
         btn.addEventListener('click', diagnoseHandler);
         select.addEventListener('change', animalHandler);
+        checkbox.addEventListener('change', checkboxHandler);
+
         getAnimalList();
 
         function diagnoseHandler(event){
             displayLoading();
-            data = getData();
-            console.log(JSON.stringify(data));
+            data = getData(); 
+            if (data == null){
+                hideLoading();
+                return;
+            }
             fetch(diagnoseUrl, {
                 method: 'POST',
                 headers: {
@@ -30,18 +36,42 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(function (json) { 
                     hideLoading()
                     displayResults(json)
-                    console.log("pls") })["catch"](function (error) { return console.error(error); });
+                    })["catch"](function (error) { return console.error(error); });
             }
 
 
         function animalHandler(event){
             var animal = select.value;
+            var signs = null;
+            var texts = null;
+            var priors = null;
+            
             fetch(diseasesUrl + animal)
                 .then(function (response) { return response.json(); })
                 .then(function (json) { 
-                    populatePageSigns(json.signs)
-                    populatePageDiseases(json.diseases)
+                    signs= json.signs;
+                    priors = json.diseases;
                  })["catch"](function (error) { return console.error(error); });
+            fetch(signsAndCodesUrl + animal)
+                .then(function (response) { return response.json(); })
+                .then(function (json) {
+                    texts = json.full_names_and_codes;
+                 })["catch"](function (error) { return console.error(error); });
+            setTimeout(() => {
+                populatePageSigns(signs, texts);
+                populatePagePriors(priors)
+            }, 1000);
+        }
+
+        function checkboxHandler(event){
+            
+            var priors = document.getElementById('priors');
+            if(checkbox.checked){
+                priors.hidden = false;
+            }
+            else{
+                priors.hidden = true;
+            }
         }
 
 
@@ -79,12 +109,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         
-        function addSign(sign){
+        function addSign(sign, signText){
             var div = document.createElement('div');
             div.setAttribute('id', sign);
-            div.setAttribute('class', "flex-container");
+            //div.setAttribute('class', "flex-container");
 
-            var signText = document.createTextNode(sign + ': ');
+            var signText = document.createTextNode(signText + ': ');
             div.appendChild(signText);
 
             var present = document.createElement("INPUT")
@@ -117,7 +147,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        function addPrior(prior){
+        function addPrior(prior, length, last){
+            if (last){
+                var val = Math.floor(100/length) + 100 % length;
+            }
+            else {
+                var val = parseInt(Math.floor(100/length));
+            }
             var div = document.createElement('div');
             div.setAttribute('id', prior);
 
@@ -127,41 +163,53 @@ document.addEventListener('DOMContentLoaded', function () {
             var value = document.createElement("INPUT")
             value.setAttribute('type', 'number');
             value.setAttribute('name', prior);
-            value.setAttribute('value', 0);
+            value.setAttribute('value', val);
             value.setAttribute('min', 0);
             value.setAttribute('max', 100);
-            value.setAttribute('step', 1);
+            value.setAttribute('step', 0.1);
             div.appendChild(value);
             document.getElementById("priors").appendChild(div);
         }
         
-        function populatePageSigns(signs)
+        function populatePageSigns(signs, signTexts)
         {
             var div = document.getElementById('signs');
             while (div.firstChild) {
                 div.removeChild(div.firstChild);
             }
+            div.appendChild(document.createTextNode('Signs:'));
             
             for (var i = 0; i < signs.length; i++) {
-                addSign(signs[i]);
+                var signCode = signs[i];
+                addSign(signCode, signTexts[signCode][0]);
             }
         }
-        function populatePageDiseases(priors)
+        function populatePagePriors(priors)
         {
+            last = false;
             var div = document.getElementById('priors');
             while (div.firstChild) {
                 div.removeChild(div.firstChild);
             }
-
+            div.appendChild(document.createTextNode('Priors:'));
             
             for (var i = 0; i < priors.length; i++) {
-                addPrior(priors[i]);
+                if(i == priors.length - 1){
+                    last = true;
+                }
+                addPrior(priors[i], priors.length, last);
             }
         }
 
         function getData() {
             var signs = document.getElementById('signs').children;
             var priors = document.getElementById('priors').children;
+            var dataNoPriors = {
+                animal: select.value,
+                signs: {
+
+                }
+            }
             var data = {
                 animal: select.value,
                 signs: {
@@ -177,20 +225,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 var number = parseInt(value);
                 data.signs[sign] = number;
             }
-            var total = 0;
-            for (var i = 0; i < priors.length; i++) {
-                var prior = priors[i].id;
-                var priorvalue = parseInt(priors[i].querySelector('input').value);
-                total += priorvalue;             
-                data.priors[prior] = priorvalue;
-            }
-            console.log("total: " + total + " " + typeof(total));
-            if(total != 100){
-                alert('Priors must add up to 100%');
-                return;
             
+            var total = 0.00000000000;
+            if(checkbox.checked){
+                for (var i = 0; i < priors.length; i++) {
+                    var prior = priors[i].id;
+                    
+                    var priorvalue = parseFloat(priors[i].querySelector('input').value);
+                    total += priorvalue;             
+                    data.priors[prior] = priorvalue;
+                }
+                if(total != 100){
+                    alert('Priors must add up to 100%');
+                    return;
+                }
+            }
+            else{
+                delete data.priors;
             }
             return data;
+            
+            
         }
 
 
@@ -208,7 +263,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             
             // Create a new array with only the first 5 items
-            console.log(items.slice(0, 5));
             var div = document.getElementById('results');
             while (div.firstChild) {
                 div.removeChild(div.firstChild);
@@ -226,6 +280,5 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         }
-
-    }
+}
 });
