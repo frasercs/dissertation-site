@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const diagnoseUrl = 'https://frasercs.pythonanywhere.com/api/diagnose/';
     const animalListUrl = 'https://frasercs.pythonanywhere.com/api/data/valid_animals'
     const diseasesUrl = 'https://frasercs.pythonanywhere.com/api/data/animal_details/'
-    const signsAndCodesUrl = 'https://frasercs.pythonanywhere.com/api/data/signs_and_codes/'
+    const signsAndCodesUrl = 'https://frasercs.pythonanywhere.com/api/data/full_sign_names_and_codes/'
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     if(btn && select && checkbox){
@@ -42,9 +42,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function animalHandler(event){
             displayLoading();
+            clearResults();
             var animal = select.value;
             var signs = null;
-            var texts = null;
+            var textAndCodes = null;
             var priors = null;
             
             fetch(diseasesUrl + animal)
@@ -56,14 +57,15 @@ document.addEventListener('DOMContentLoaded', function () {
             fetch(signsAndCodesUrl + animal)
                 .then(function (response) { return response.json(); })
                 .then(function (json) {
-                    texts = json.full_names_and_codes;
+                    textAndCodes = json.full_names_and_codes;
+                    
                  })["catch"](function (error) { return console.error(error); });
                  ;
             setTimeout(() => {
                 hideLoading();
-                populatePageSigns(signs, texts);
+                populatePageSigns(signs, textAndCodes);
                 populatePagePriors(priors)
-            }, 4000);
+            }, 5000);
         }
 
         function checkboxHandler(event){
@@ -112,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         
-        function addSign(sign, signText, first){
+        function addSign(sign, signText, signCode, first){
             var table = document.getElementById('signs-table');
             var tbody = document.getElementById('signs-body');
             
@@ -156,13 +158,35 @@ document.addEventListener('DOMContentLoaded', function () {
             var text = document.createTextNode(signText);
             //append the text node to the th column
             th.appendChild(text);
-            //append image to the th column <i class="bi bi-question-circle"></i>
-            var icon = document.createElement('i');
-            icon.setAttribute('class', 'bi bi-question-circle mx-2');
-            icon.setAttribute('data-bs-toggle', 'tooltip');
-            icon.setAttribute('data-bs-placement', 'top');
-            icon.setAttribute('title', 'Tooltip on top');
-            th.appendChild(icon);
+            var link = document.createElement('a');
+            var img = document.createElement('i');
+            img.setAttribute('class', 'bi bi-question-circle');
+            img.setAttribute('width', '20');
+            img.setAttribute('height', '20');
+            if (signCode.includes(',')){
+                link.setAttribute('href', 'https://www.wikidata.org/wiki/' + signCode.split(',')[0]);
+                link.setAttribute('target', '_blank');
+                link.setAttribute('title', 'Click to view WikiData page for this sign');
+                link.setAttribute('data-bs-content', 'Click to view WikiData page for this sign');
+                link.appendChild(img);
+                th.appendChild(link);
+            }
+            else if (signCode.includes('-')){
+                img.setAttribute('title', 'No WikiData page exists for this sign');
+                img.setAttribute('data-bs-content', 'No WikiData page exists for this sign');
+                th.appendChild(img);
+            }
+            else{
+                link.setAttribute('href', 'https://www.wikidata.org/wiki/' + signCode);
+                link.setAttribute('target', '_blank');
+                link.setAttribute('title', 'Click to view WikiData page for this sign');
+                link.setAttribute('data-bs-content', 'Click to view WikiData page for this sign');
+                link.appendChild(img);
+                th.appendChild(link);
+            }
+            
+
+            
             //append the th column to the row
             row.appendChild(th);
             //append the row to the tbody
@@ -199,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        function populatePageSigns(signs, signTexts, first)
+        function populatePageSigns(signs, signTexts)
         {
             var table = document.getElementById('signs-table');
             while (table.firstChild) {
@@ -207,12 +231,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             
             for (var i = 0; i < signs.length; i++) {
+                var sign = signs[i];
+                var signText = signTexts[signs[i]][0];
+                var signCode = signTexts[signs[i]][1];
                 if(i == 0){
-                    addSign(signs[i], signTexts[signs[i]][0], true);
+                    addSign(sign, signText, signCode, true);
                 }
                 else{
-                    var signCode = signs[i];
-                    addSign(signCode, signTexts[signCode][0], false);
+                    addSign(sign, signText, signCode, false);
                 }
             }
         }
@@ -264,6 +290,10 @@ document.addEventListener('DOMContentLoaded', function () {
         function getData() {
             var signs = document.getElementById('signs-body').children;
             var priors = document.getElementById('priors').children;
+            if (select.value == 'Choose an animal') {
+                alert('Please choose an animal');
+                return;
+            }
             var data = {
                 animal: select.value,
                 signs: {
@@ -305,6 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
         function displayResults(data) {
 
             var results = data.results
+            var codes = data.wiki_ids
 
             var items = Object.keys(results).map(function(key) {
                 return [key, results[key]];
@@ -322,12 +353,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             div.appendChild(document.createTextNode('Top results:'));
             for(var i = 0; i < items.slice(0,5).length; i++){
+                
                 var resultContainer = document.createElement('div');
                 resultContainer.setAttribute('class', 'd-flex center-items');
                 resultContainer.setAttribute('id', items[i][0]);
                 div.appendChild(resultContainer);
 
                 var item = items[i];
+                var code = codes[item[0]];
                 item[1] = Math.round(item[1])+ '%';
                 if(item[1] == '100%'){
                     break;
@@ -337,22 +370,39 @@ document.addEventListener('DOMContentLoaded', function () {
                 var text = document.createTextNode(item[0] + ': ' + item[1]);
                 p.appendChild(text);
                 resultContainer.appendChild(p);
-                var icon = document.createElement('i');
-                icon.setAttribute('class', 'bi bi-question-circle mx-2 ');
-                icon.setAttribute('data-bs-toggle', 'tooltip');
-                icon.setAttribute('data-bs-placement', 'top');
+                var link = document.createElement('a');
+                link.setAttribute('href', 'https://www.wikidata.org/wiki/' + code);
+                link.setAttribute('target', '_blank');
+                var img = document.createElement('i');
+                img.setAttribute('class', 'bi bi-question-circle');
+                img.setAttribute('data-bs-toggle', 'tooltip');
+                
+                
                 if(item[0] == 'ZZ_Other'){
-                    icon.setAttribute('title', 'This indicates the disease may be one of the diseases not included in the model.');
-                    icon.setAttribute('data-bs-content', 'This indicates the disease may be one of the diseases not included in the model.');
+                    img.setAttribute('title', 'This indicates the disease may be one of the diseases not included in the model.');
+                    img.setAttribute('data-bs-content', 'This indicates the disease may be one of the diseases not included in the model.');
+                    resultContainer.appendChild(img);
+                }
+                else if(codes[item[0]] != 'N/A'){
+                    link.appendChild(img);
+                    link.setAttribute('title', 'Click to view WikiData page for this disease');
+                    link.setAttribute('data-bs-content', 'Click to view WikiData page for this disease');
+                    resultContainer.appendChild(link);
                 }
                 else{
-                    icon.setAttribute('title', 'Tooltip on top');
-                    icon.setAttribute('data-bs-content', 'Tooltip on top');
+                    img.setAttribute('title', 'No WikiData page exists for this disease');
+                    img.setAttribute('data-bs-content', 'No WikiData page exists for this disease');
+                    resultContainer.appendChild(img);
                 }
-                icon.setAttribute('data-bs-html', 'true');
-                icon.setAttribute('data-bs-trigger', 'hover');
-                resultContainer.appendChild(icon);
-                
+                img.setAttribute('data-bs-html', 'true');
+                img.setAttribute('data-bs-trigger', 'hover');
+            }
+        }
+
+        function clearResults(){
+            var div = document.getElementById('results');
+            while (div.firstChild) {
+                div.removeChild(div.firstChild);
             }
         }
 }
