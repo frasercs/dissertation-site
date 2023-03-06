@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 hideLoading();
                 populatePageSigns(signs, textAndCodes);
                 populatePagePriors(priors)
-            }, 5000);
+            }, 1000);
         }
 
         function checkboxHandler(event){
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function () {
           
           function createInfoIcon(title) {
             const img = document.createElement('i');
-            img.setAttribute('class', 'bi bi-question-circle');
+            img.setAttribute('class', 'bi bi-question-circle mx-2');
             img.setAttribute('width', '20');
             img.setAttribute('height', '20');
             img.setAttribute('title', title);
@@ -239,111 +239,95 @@ document.addEventListener('DOMContentLoaded', function () {
           }
 
 
-        function populatePageSigns(signs, signTexts)
-        {
-
-            var table = document.getElementById('signs-table');
-            while (table.firstChild) {
-                table.removeChild(table.firstChild);
-            }
-            
-            for (var i = 0; i < signs.length; i++) {
-                var sign = signs[i];
-                var signText = signTexts[signs[i]][0];
-                var signCode = signTexts[signs[i]][1];
-                if(i == 0){
-                    addSign(sign, signText, signCode, true);
-
-                }
-                else{
-                    addSign(sign, signText, signCode, false);
-                }
-            }
+        function populatePageSigns(signs, signTexts) {
+        const table = document.getElementById('signs-table');
+        while (table.firstChild) {
+            table.removeChild(table.firstChild);
+        }
+        
+        signs.forEach((sign, i) => {
+            const signText = signTexts[sign][0];
+            const signCode = signTexts[sign][1];
+            const isFirstSign = i === 0;
+            addSign(sign, signText, signCode, isFirstSign);
+        });
         }
 
 
-        function addPrior(prior, length, last){
-            if (last){
-                var val = Math.floor(100/length) + 100 % length;
-            }
-            else {
-                var val = parseInt(Math.floor(100/length));
-            }
-            var div = document.createElement('div');
-            div.setAttribute('id', prior);
-
-            var priorText = document.createTextNode(prior + ': ');
+        function addPrior(prior, length, last) {
+            const div = document.createElement('div');
+            div.id = prior;
+          
+            const priorText = document.createTextNode(`${prior}: `);
             div.appendChild(priorText);
-
-            var value = document.createElement("INPUT")
-            value.setAttribute('type', 'number');
-            value.setAttribute('name', prior);
-            value.setAttribute('value', val);
-            value.setAttribute('min', 0);
-            value.setAttribute('max', 100);
-            value.setAttribute('step', 0.1);
+          
+            const value = document.createElement('input');
+            value.type = 'number';
+            value.name = prior;
+            value.value = last ? Math.floor(100 / length) + 100 % length : parseInt(Math.floor(100 / length));
+            value.min = 0;
+            value.max = 100;
+            value.step = 0.1;
             div.appendChild(value);
-            document.getElementById("priors").appendChild(div);
-        }
+          
+            document.getElementById('priors').appendChild(div);
+          }
         
         
-        function populatePagePriors(priors)
-        {
-            last = false;
-            var div = document.getElementById('priors');
-            
-            while (div.firstChild) {
-                div.removeChild(div.firstChild);
-            }
-            
-            for (var i = 0; i < priors.length; i++) {
-                if(i == priors.length - 1){
-                    last = true;
-                }
-                addPrior(priors[i], priors.length, last);
-            }
-            div.setAttribute('class', 'd-none')
-        }
+        function populatePagePriors(priors) {
+            const div = document.getElementById('priors');
+            div.innerHTML = '';
+            let last = false;
+          
+            priors.forEach((prior, index) => {
+              if (index === priors.length - 1) {
+                last = true;
+              }
+              addPrior(prior, priors.length, last);
+            });
+          
+            div.classList.add('d-none');
+          }
 
         function getData() {
-            var signs = document.getElementById('signs-body').children;
-            var priors = document.getElementById('priors').children;
-            if (select.value == 'Choose an animal') {
+            const signs = document.getElementById('signs-body').children;
+            const priors = document.getElementById('priors').children;
+
+            if (select.value === 'Choose an animal') {
                 alert('Please choose an animal');
                 return;
             }
-            var data = {
-                animal: select.value,
-                signs: {
-                    
-                },
-                priors: {
 
-                }
+            const data = {
+                animal: select.value,
+                signs: {},
+                priors: {}
+            };
+
+            for (const sign of signs) {
+                const id = sign.id;
+                const value = parseInt(sign.querySelector('input:checked').value);
+                data.signs[id] = value;
             }
-            for (var i = 0; i < signs.length; i++) {
-                var sign = signs[i].id;
-                var signvalue = parseInt(signs[i].querySelector('input:checked').value);
-                data.signs[sign] = signvalue;
+
+            let total = 0;
+
+            if (checkbox.checked) {
+                for (const prior of priors) {
+                const id = prior.id;
+                const value = parseFloat(prior.querySelector('input').value);
+                total += value;
+                data.priors[id] = value;
                 }
-            
-            
-            var total = 0.00000000000;
-            if(checkbox.checked){
-                for (var i = 0; i < priors.length; i++) {
-                    var prior = priors[i].id;
-                    var priorvalue = parseFloat(priors[i].querySelector('input').value);
-                    total += priorvalue;             
-                    data.priors[prior] = priorvalue;
+
+                if (total !== 100) {
+                alert('Priors must add up to 100%');
+                return;
                 }
-                if(total != 100){
-                    alert('Priors must add up to 100%');
-                    return;
-                }
-            }
-            else{
+            } else {
                 delete data.priors;
             }
+
             return data;
             
             
@@ -392,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 link.setAttribute('href', 'https://www.wikidata.org/wiki/' + code);
                 link.setAttribute('target', '_blank');
                 var img = document.createElement('i');
-                img.setAttribute('class', 'bi bi-question-circle');
+                img.setAttribute('class', 'bi bi-question-circle mx-2');
                 img.setAttribute('data-bs-toggle', 'tooltip');
                 
                 
