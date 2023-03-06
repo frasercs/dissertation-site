@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return tbody;
           }
           
-          function createRadioButtonColumn(sign, value, checked = false) {
+          /*function createRadioButtonColumn(sign, value, checked = false) {
             const td = document.createElement('td');
             const radio = document.createElement('input');
             radio.setAttribute('type', 'radio');
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
             td.appendChild(radio);
           
             return td;
-          }
+          }*/
           
           function addSign(sign, signText, signCode, first) {
             const table = document.getElementById('signs-table');
