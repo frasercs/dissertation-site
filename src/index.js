@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function () {
     const loader = document.querySelector('#loading');
     const btn = document.getElementById('diagnosis-btn');
@@ -8,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const animalListUrl = 'https://frasercs.pythonanywhere.com/api/data/valid_animals'
     const diseasesUrl = 'https://frasercs.pythonanywhere.com/api/data/animal_details/'
     const signsAndCodesUrl = 'https://frasercs.pythonanywhere.com/api/data/signs_and_codes/'
-    let diagnosis = null;
     if(btn && select && checkbox){
 
         btn.addEventListener('click', diagnoseHandler);
@@ -63,17 +61,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 hideLoading();
                 populatePageSigns(signs, texts);
                 populatePagePriors(priors)
-            }, 1000);
+            }, 4000);
         }
 
         function checkboxHandler(event){
             
             var priors = document.getElementById('priors');
             if(checkbox.checked){
-                priors.hidden = false;
+                priors.setAttribute('class', 'd-block')
             }
             else{
-                priors.hidden = true;
+                priors.setAttribute('class', 'd-none')
             }
         }
 
@@ -112,72 +110,102 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         
-        function addSign(sign, signText){
-            var div = document.createElement('div');
-            div.setAttribute('id', sign);
-            div.setAttribute('class', 'form-group');
+        function addSign(sign, signText, first){
+            var table = document.getElementById('signs-table');
+            var tbody = document.getElementById('signs-body');
             
+            if (first){
+                //create the table head and append it to the table
+                var thead = document.createElement('thead');
+                thead.setAttribute('id', 'signs-head');
+                var row = document.createElement('tr');
+                var th1 = document.createElement('th');
+                th1.setAttribute('scope', 'col');
+                var th2 = document.createElement('th');
+                th2.setAttribute('scope', 'col');
+                var th3 = document.createElement('th');
+                th3.setAttribute('scope', 'col');
+                var th4 = document.createElement('th');
+                th4.setAttribute('scope', 'col');
+                var text1 = document.createTextNode('Sign');
+                var text2 = document.createTextNode('Present');
+                var text3 = document.createTextNode('Not Observed');
+                var text4 = document.createTextNode('Not Present');
+                th1.appendChild(text1);
+                th2.appendChild(text2);
+                th3.appendChild(text3);
+                th4.appendChild(text4);
+                row.appendChild(th1);
+                row.appendChild(th2);
+                row.appendChild(th3);
+                row.appendChild(th4);
+                thead.appendChild(row);
+                table.appendChild(thead);
+                
+                var tbody = document.createElement('tbody');
+                tbody.setAttribute('id', 'signs-body');
+                table.appendChild(tbody);
+            }
+            var row = document.createElement('tr');
+            //set the row id to sign
+            row.setAttribute('id', sign);
+            var th = document.createElement('th');
+            //create the text node for the th column with signText
+            var text = document.createTextNode(signText);
+            //append the text node to the th column
+            th.appendChild(text);
+            //append the th column to the row
+            row.appendChild(th);
+            //append the row to the tbody
+            tbody.appendChild(row);
+            //create the 3 td columns
+            var td1 = document.createElement('td');
+            var td2 = document.createElement('td');
+            var td3 = document.createElement('td');
+            //create the 3 radio buttons
+            var radio1 = document.createElement('input');
+            var radio2 = document.createElement('input');
+            var radio3 = document.createElement('input');
+            //set the type of the radio buttons to radio
+            radio1.setAttribute('type', 'radio');
+            radio2.setAttribute('type', 'radio');
+            radio3.setAttribute('type', 'radio');
+            //set the name of the radio buttons to sign
+            radio1.setAttribute('name', sign);
+            radio2.setAttribute('name', sign);
+            radio3.setAttribute('name', sign);
+            //set the value of the radio buttons to 1, 0, -1
+            radio1.setAttribute('value', 1);
+            radio2.setAttribute('value', 0);
+            radio2.setAttribute('checked', true);
+            radio3.setAttribute('value', -1);
+            //append the radio buttons to the td columns
+            td1.appendChild(radio1);
+            td2.appendChild(radio2);
+            td3.appendChild(radio3);
+            //append the td columns to the row
+            row.appendChild(td1);
+            row.appendChild(td2);
+            row.appendChild(td3);
+        }
 
-            var signText = document.createTextNode(signText + ': ');
-            div.appendChild(signText);
 
-            var presentDiv = document.createElement('div');
-            presentDiv.setAttribute('class', 'form-check form-check-inline');
-            presentDiv.setAttribute('id', sign + '-present-div');
-            var present = document.createElement("INPUT")
-            var presentText = 'Present'
-            present.setAttribute('class', "form-check-input")
-            present.setAttribute('type', 'radio');
-            present.setAttribute('name', sign);
-            present.setAttribute('value', 1);
-            var presentLabel = document.createElement('label');
-            presentLabel.appendChild(document.createTextNode(presentText));
-            presentLabel.setAttribute('for', present);
-            presentLabel.setAttribute('class', 'form-check-label');
+        function populatePageSigns(signs, signTexts, first)
+        {
+            var table = document.getElementById('signs-table');
+            while (table.firstChild) {
+                table.removeChild(table.firstChild);
+            }
             
-            
-            var notObservedDiv = document.createElement('div');
-            notObservedDiv.setAttribute('class', 'form-check form-check-inline');
-            notObservedDiv.setAttribute('id', sign + '-notObserved-div');
-            var notObserved = document.createElement("INPUT")
-            var notObservedText = 'Not Observed'
-            notObserved.setAttribute('class', "form-check-input")
-            notObserved.setAttribute('type', 'radio');
-            notObserved.setAttribute('name', sign);
-            notObserved.setAttribute('value', 0);
-            notObserved.setAttribute('checked', 'checked');
-            var notObservedLabel = document.createElement('label');
-            notObservedLabel.appendChild(document.createTextNode(notObservedText));
-            notObservedLabel.setAttribute('for', notObserved);
-            notObservedLabel.setAttribute('class', 'form-check-label');
-
-            var notPresentDiv = document.createElement('div');
-            notPresentDiv.setAttribute('class', 'form-check form-check-inline');
-            notPresentDiv.setAttribute('id', sign + '-notPresent-div');
-            var notPresent = document.createElement("INPUT")
-            notPresentText = 'Not Present'
-            notPresent.setAttribute('class', "form-check-input")
-            notPresent.setAttribute('type', 'radio');
-            notPresent.setAttribute('name', sign);
-            notPresent.setAttribute('value', -1);
-            var notPresentLabel = document.createElement('label');
-            notPresentLabel.appendChild(document.createTextNode(notPresentText));
-            notPresentLabel.setAttribute('for', notPresent);
-            notPresentLabel.setAttribute('class', 'form-check-label');
-
-            div.appendChild(presentDiv);
-            presentDiv.appendChild(present);
-            presentDiv.appendChild(presentLabel);
-
-            div.appendChild(notObservedDiv);
-            notObservedDiv.appendChild(notObserved);
-            notObservedDiv.appendChild(notObservedLabel);
-
-            div.appendChild(notPresentDiv);
-            notPresentDiv.appendChild(notPresent);
-            notPresentDiv.appendChild(notPresentLabel);
-
-            document.getElementById('signs').appendChild(div);
+            for (var i = 0; i < signs.length; i++) {
+                if(i == 0){
+                    addSign(signs[i], signTexts[signs[i]][0], true);
+                }
+                else{
+                    var signCode = signs[i];
+                    addSign(signCode, signTexts[signCode][0], false);
+                }
+            }
         }
 
 
@@ -205,22 +233,12 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById("priors").appendChild(div);
         }
         
-        function populatePageSigns(signs, signTexts)
-        {
-            var div = document.getElementById('signs');
-            while (div.firstChild) {
-                div.removeChild(div.firstChild);
-            }
-            
-            for (var i = 0; i < signs.length; i++) {
-                var signCode = signs[i];
-                addSign(signCode, signTexts[signCode][0]);
-            }
-        }
+        
         function populatePagePriors(priors)
         {
             last = false;
             var div = document.getElementById('priors');
+            
             while (div.firstChild) {
                 div.removeChild(div.firstChild);
             }
@@ -231,17 +249,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 addPrior(priors[i], priors.length, last);
             }
+            div.setAttribute('class', 'd-none')
         }
 
         function getData() {
-            var signs = document.getElementById('signs').children;
+            var signs = document.getElementById('signs-body').children;
             var priors = document.getElementById('priors').children;
-            var dataNoPriors = {
-                animal: select.value,
-                signs: {
-
-                }
-            }
             var data = {
                 animal: select.value,
                 signs: {
@@ -253,10 +266,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             for (var i = 0; i < signs.length; i++) {
                 var sign = signs[i].id;
-                var value = signs[i].querySelector('input:checked').value;
-                var number = parseInt(value);
-                data.signs[sign] = number;
-            }
+                var signvalue = parseInt(signs[i].querySelector('input:checked').value);
+                data.signs[sign] = signvalue;
+                }
+            
             
             var total = 0.00000000000;
             if(checkbox.checked){
@@ -303,13 +316,14 @@ document.addEventListener('DOMContentLoaded', function () {
             for(var i = 0; i < items.slice(0,5).length; i++){
                 var item = items[i];
                 item[1] = Math.round(item[1])+ '%';
+                if(item[1] == '100%'){
+                    break;
+                }
                 var p = document.createElement('p');
                 var text = document.createTextNode(item[0] + ': ' + item[1]);
                 p.appendChild(text);
                 div.appendChild(p);
-                if( item[1] == '100%'){
-                    break;
-                }
+                
             }
         }
 }
