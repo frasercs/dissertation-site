@@ -114,117 +114,134 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         
-        function addSign(sign, signText, signCode, first){
-            var table = document.getElementById('signs-table');
-            var tbody = document.getElementById('signs-body');
+        function createTableHead() {
+            const thead = document.createElement('thead');
+            thead.setAttribute('id', 'signs-head');
+          
+            const row = document.createElement('tr');
+            const th1 = document.createElement('th');
+            th1.setAttribute('scope', 'col');
+            const th2 = document.createElement('th');
+            th2.setAttribute('scope', 'col');
+            const th3 = document.createElement('th');
+            th3.setAttribute('scope', 'col');
+            const th4 = document.createElement('th');
+            th4.setAttribute('scope', 'col');
+          
+            th1.textContent = 'Sign';
+            th2.textContent = 'Present';
+            th3.textContent = 'Not Observed';
+            th4.textContent = 'Not Present';
+          
+            row.appendChild(th1);
+            row.appendChild(th2);
+            row.appendChild(th3);
+            row.appendChild(th4);
+            thead.appendChild(row);
+          
+            return thead;
+          }
+          
+          function createTableBody() {
             
-            if (first){
-                //create the table head and append it to the table
-                var thead = document.createElement('thead');
-                thead.setAttribute('id', 'signs-head');
-                var row = document.createElement('tr');
-                var th1 = document.createElement('th');
-                th1.setAttribute('scope', 'col');
-                var th2 = document.createElement('th');
-                th2.setAttribute('scope', 'col');
-                var th3 = document.createElement('th');
-                th3.setAttribute('scope', 'col');
-                var th4 = document.createElement('th');
-                th4.setAttribute('scope', 'col');
-                var text1 = document.createTextNode('Sign');
-                var text2 = document.createTextNode('Present');
-                var text3 = document.createTextNode('Not Observed');
-                var text4 = document.createTextNode('Not Present');
-                th1.appendChild(text1);
-                th2.appendChild(text2);
-                th3.appendChild(text3);
-                th4.appendChild(text4);
-                row.appendChild(th1);
-                row.appendChild(th2);
-                row.appendChild(th3);
-                row.appendChild(th4);
-                thead.appendChild(row);
+            const tbody = document.createElement('tbody');
+            tbody.setAttribute('id', 'signs-body');
+            return tbody;
+          }
+          
+          function createRadioButtonColumn(sign, value, checked = false) {
+            const td = document.createElement('td');
+            const radio = document.createElement('input');
+            radio.setAttribute('type', 'radio');
+            radio.setAttribute('name', sign);
+            radio.setAttribute('value', value);
+          
+            if (checked) {
+              radio.setAttribute('checked', '');
+            }
+          
+            td.appendChild(radio);
+          
+            return td;
+          }
+          
+          function addSign(sign, signText, signCode, first) {
+            const table = document.getElementById('signs-table');
+            
+            if (first) {
+                const thead = createTableHead();
                 table.appendChild(thead);
-                
-                var tbody = document.createElement('tbody');
-                tbody.setAttribute('id', 'signs-body');
+                const tbody = createTableBody();
                 table.appendChild(tbody);
             }
-            var row = document.createElement('tr');
-            //set the row id to sign
+            
+            const row = document.createElement('tr');
             row.setAttribute('id', sign);
-            var th = document.createElement('th');
-            //create the text node for the th column with signText
-            var text = document.createTextNode(signText);
-            //append the text node to the th column
+            
+            const th = document.createElement('th');
+            const text = document.createTextNode(signText);
             th.appendChild(text);
-            var link = document.createElement('a');
-            var img = document.createElement('i');
+            
+            if (signCode.includes(',')) {
+              const link = createWikiDataLink(signCode.split(',')[0]);
+              th.appendChild(link);
+            } else if (signCode.includes('-')) {
+              const img = createInfoIcon('No WikiData page exists for this sign');
+              th.appendChild(img);
+            } else {
+              const link = createWikiDataLink(signCode);
+              th.appendChild(link);
+            }
+            row.appendChild(th);
+          
+            const values = [1, 0, -1];
+            for (const val of values) {
+              const td = document.createElement('td');
+              const radio = createRadioButton(sign, val);
+              td.appendChild(radio);
+              row.appendChild(td);
+            }
+          
+            const tbody = document.getElementById('signs-body');
+            tbody.appendChild(row);
+          }
+          
+          function createWikiDataLink(code) {
+            const link = document.createElement('a');
+            const img = createInfoIcon('Click to view WikiData page for this sign');
+            link.setAttribute('href', `https://www.wikidata.org/wiki/${code}`);
+            link.setAttribute('target', '_blank');
+            link.setAttribute('title', 'Click to view WikiData page for this sign');
+            link.setAttribute('data-bs-content', 'Click to view WikiData page for this sign');
+            link.appendChild(img);
+            return link;
+          }
+          
+          function createInfoIcon(title) {
+            const img = document.createElement('i');
             img.setAttribute('class', 'bi bi-question-circle');
             img.setAttribute('width', '20');
             img.setAttribute('height', '20');
-            if (signCode.includes(',')){
-                link.setAttribute('href', 'https://www.wikidata.org/wiki/' + signCode.split(',')[0]);
-                link.setAttribute('target', '_blank');
-                link.setAttribute('title', 'Click to view WikiData page for this sign');
-                link.setAttribute('data-bs-content', 'Click to view WikiData page for this sign');
-                link.appendChild(img);
-                th.appendChild(link);
+            img.setAttribute('title', title);
+            img.setAttribute('data-bs-content', title);
+            return img;
+          }
+          
+          function createRadioButton(sign, value) {
+            const radio = document.createElement('input');
+            radio.setAttribute('type', 'radio');
+            radio.setAttribute('name', sign);
+            radio.setAttribute('value', value);
+            if (value === 0) {
+              radio.setAttribute('checked', true);
             }
-            else if (signCode.includes('-')){
-                img.setAttribute('title', 'No WikiData page exists for this sign');
-                img.setAttribute('data-bs-content', 'No WikiData page exists for this sign');
-                th.appendChild(img);
-            }
-            else{
-                link.setAttribute('href', 'https://www.wikidata.org/wiki/' + signCode);
-                link.setAttribute('target', '_blank');
-                link.setAttribute('title', 'Click to view WikiData page for this sign');
-                link.setAttribute('data-bs-content', 'Click to view WikiData page for this sign');
-                link.appendChild(img);
-                th.appendChild(link);
-            }
-            
-
-            
-            //append the th column to the row
-            row.appendChild(th);
-            //append the row to the tbody
-            tbody.appendChild(row);
-            //create the 3 td columns
-            var td1 = document.createElement('td');
-            var td2 = document.createElement('td');
-            var td3 = document.createElement('td');
-            //create the 3 radio buttons
-            var radio1 = document.createElement('input');
-            var radio2 = document.createElement('input');
-            var radio3 = document.createElement('input');
-            //set the type of the radio buttons to radio
-            radio1.setAttribute('type', 'radio');
-            radio2.setAttribute('type', 'radio');
-            radio3.setAttribute('type', 'radio');
-            //set the name of the radio buttons to sign
-            radio1.setAttribute('name', sign);
-            radio2.setAttribute('name', sign);
-            radio3.setAttribute('name', sign);
-            //set the value of the radio buttons to 1, 0, -1
-            radio1.setAttribute('value', 1);
-            radio2.setAttribute('value', 0);
-            radio2.setAttribute('checked', true);
-            radio3.setAttribute('value', -1);
-            //append the radio buttons to the td columns
-            td1.appendChild(radio1);
-            td2.appendChild(radio2);
-            td3.appendChild(radio3);
-            //append the td columns to the row
-            row.appendChild(td1);
-            row.appendChild(td2);
-            row.appendChild(td3);
-        }
+            return radio;
+          }
 
 
         function populatePageSigns(signs, signTexts)
         {
+
             var table = document.getElementById('signs-table');
             while (table.firstChild) {
                 table.removeChild(table.firstChild);
@@ -236,6 +253,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 var signCode = signTexts[signs[i]][1];
                 if(i == 0){
                     addSign(sign, signText, signCode, true);
+
                 }
                 else{
                     addSign(sign, signText, signCode, false);
