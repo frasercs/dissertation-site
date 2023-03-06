@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const animalListUrl = 'https://frasercs.pythonanywhere.com/api/data/valid_animals'
     const diseasesUrl = 'https://frasercs.pythonanywhere.com/api/data/animal_details/'
     const signsAndCodesUrl = 'https://frasercs.pythonanywhere.com/api/data/signs_and_codes/'
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     if(btn && select && checkbox){
 
         btn.addEventListener('click', diagnoseHandler);
@@ -154,6 +156,13 @@ document.addEventListener('DOMContentLoaded', function () {
             var text = document.createTextNode(signText);
             //append the text node to the th column
             th.appendChild(text);
+            //append image to the th column <i class="bi bi-question-circle"></i>
+            var icon = document.createElement('i');
+            icon.setAttribute('class', 'bi bi-question-circle mx-2');
+            icon.setAttribute('data-bs-toggle', 'tooltip');
+            icon.setAttribute('data-bs-placement', 'top');
+            icon.setAttribute('title', 'Tooltip on top');
+            th.appendChild(icon);
             //append the th column to the row
             row.appendChild(th);
             //append the row to the tbody
@@ -275,7 +284,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if(checkbox.checked){
                 for (var i = 0; i < priors.length; i++) {
                     var prior = priors[i].id;
-                    
                     var priorvalue = parseFloat(priors[i].querySelector('input').value);
                     total += priorvalue;             
                     data.priors[prior] = priorvalue;
@@ -314,15 +322,36 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             div.appendChild(document.createTextNode('Top results:'));
             for(var i = 0; i < items.slice(0,5).length; i++){
+                var resultContainer = document.createElement('div');
+                resultContainer.setAttribute('class', 'd-flex center-items');
+                resultContainer.setAttribute('id', items[i][0]);
+                div.appendChild(resultContainer);
+
                 var item = items[i];
                 item[1] = Math.round(item[1])+ '%';
                 if(item[1] == '100%'){
                     break;
                 }
                 var p = document.createElement('p');
+                
                 var text = document.createTextNode(item[0] + ': ' + item[1]);
                 p.appendChild(text);
-                div.appendChild(p);
+                resultContainer.appendChild(p);
+                var icon = document.createElement('i');
+                icon.setAttribute('class', 'bi bi-question-circle mx-2 ');
+                icon.setAttribute('data-bs-toggle', 'tooltip');
+                icon.setAttribute('data-bs-placement', 'top');
+                if(item[0] == 'ZZ_Other'){
+                    icon.setAttribute('title', 'This indicates the disease may be one of the diseases not included in the model.');
+                    icon.setAttribute('data-bs-content', 'This indicates the disease may be one of the diseases not included in the model.');
+                }
+                else{
+                    icon.setAttribute('title', 'Tooltip on top');
+                    icon.setAttribute('data-bs-content', 'Tooltip on top');
+                }
+                icon.setAttribute('data-bs-html', 'true');
+                icon.setAttribute('data-bs-trigger', 'hover');
+                resultContainer.appendChild(icon);
                 
             }
         }
