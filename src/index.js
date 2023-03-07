@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', function () {
         getAnimalList();
 
         function diagnoseHandler(event){
+            if (select.value === 'Choose an animal') {
+                alert('Please choose an animal');
+                return;
+            }
             displayLoading();
             data = getData(); 
             if (data == null){
@@ -44,7 +48,6 @@ document.addEventListener('DOMContentLoaded', function () {
             clearResults();
             var animal = select.value;
             var signs = null;
-            var textAndCodes = null;
             var priors = null;
             
             fetch(dataUrl + animal)
@@ -290,11 +293,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const signs = document.getElementById('signs-body').children;
             const priors = document.getElementById('priors').children;
 
-            if (select.value === 'Choose an animal') {
-                alert('Please choose an animal');
-                return;
-            }
-
             const data = {
                 animal: select.value,
                 signs: {},
@@ -334,7 +332,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function displayResults(data) {
 
-<<<<<<< HEAD
           var results = data.results
           var codes = data.wiki_ids
 
@@ -399,72 +396,6 @@ document.addEventListener('DOMContentLoaded', function () {
               img.setAttribute('data-bs-trigger', 'hover');
           }
       }
-=======
-            var results = data.results
-            var codes = data.wiki_ids
-
-            var items = Object.keys(results).map(function(key) {
-                return [key, results[key]];
-            });
-            
-            // Sort the array based on the second element
-            items.sort(function(first, second) {
-            return second[1] - first[1];
-            });
-            
-            // Create a new array with only the first 5 items
-            var div = document.getElementById('results');
-            while (div.firstChild) {
-                div.removeChild(div.firstChild);
-            }
-            div.appendChild(document.createTextNode('Top results:'));
-            for(var i = 0; i < items.slice(0,5).length; i++){
-                
-                var resultContainer = document.createElement('div');
-                resultContainer.setAttribute('class', 'd-flex center-items');
-                resultContainer.setAttribute('id', items[i][0]);
-                div.appendChild(resultContainer);
-
-                var item = items[i];
-                var code = codes[item[0]];
-                item[1] = Math.round(item[1])+ '%';
-                if(item[1] == '100%'){
-                    break;
-                }
-                var p = document.createElement('p');
-                
-                var text = document.createTextNode(item[0] + ': ' + item[1]);
-                p.appendChild(text);
-                resultContainer.appendChild(p);
-                var link = document.createElement('a');
-                link.setAttribute('href', 'https://www.wikidata.org/wiki/' + code);
-                link.setAttribute('target', '_blank');
-                var img = document.createElement('i');
-                img.setAttribute('class', 'bi bi-question-circle mx-2');
-                img.setAttribute('data-bs-toggle', 'tooltip');
-                
-                
-                if(item[0] == 'ZZ_Other'){
-                    img.setAttribute('title', 'This indicates the disease may be one of the diseases not included in the model.');
-                    img.setAttribute('data-bs-content', 'This indicates the disease may be one of the diseases not included in the model.');
-                    resultContainer.appendChild(img);
-                }
-                else if(codes[item[0]] != 'N/A'){
-                    link.appendChild(img);
-                    link.setAttribute('title', 'Click to view WikiData page for this disease');
-                    link.setAttribute('data-bs-content', 'Click to view WikiData page for this disease');
-                    resultContainer.appendChild(link);
-                }
-                else{
-                    img.setAttribute('title', 'No WikiData page exists for this disease');
-                    img.setAttribute('data-bs-content', 'No WikiData page exists for this disease');
-                    resultContainer.appendChild(img);
-                }
-                img.setAttribute('data-bs-html', 'true');
-                img.setAttribute('data-bs-trigger', 'hover');
-            }
-        }
->>>>>>> 11dab088576a8c4527e674b8af74badc89853d6a
 
         function clearResults(){
             var div = document.getElementById('results');
