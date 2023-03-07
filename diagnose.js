@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         getAnimalList();
 
-        function diagnoseHandler(event){
+        function diagnoseHandler(_event){
             if (select.value === 'Choose an animal') {
                 alert('Please choose an animal');
                 return;
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-        function animalHandler(event){
+        function animalHandler(_event){
             displayLoading();
             clearResults();
             var animal = select.value;
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     hideLoading();
                  })["catch"](function (error) { return console.error(error); });
         }
-        function checkboxHandler(event){
+        function checkboxHandler(_event){
             
             var priors = document.getElementById('priors');
             if(checkbox.checked){
@@ -143,21 +143,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return tbody;
           }
           
-          /*function createRadioButtonColumn(sign, value, checked = false) {
-            const td = document.createElement('td');
-            const radio = document.createElement('input');
-            radio.setAttribute('type', 'radio');
-            radio.setAttribute('name', sign);
-            radio.setAttribute('value', value);
-          
-            if (checked) {
-              radio.setAttribute('checked', '');
-            }
-          
-            td.appendChild(radio);
-          
-            return td;
-          }*/
           
           function addSign(sign, signText, signCode, first) {
             const table = document.getElementById('signs-table');
@@ -199,6 +184,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const tbody = document.getElementById('signs-body');
             tbody.appendChild(row);
           }
+
           
           function createWikiDataLink(code) {
             const link = document.createElement('a');
@@ -210,6 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
             link.appendChild(img);
             return link;
           }
+
           
           function createInfoIcon(title) {
             const img = document.createElement('i');
@@ -220,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
             img.setAttribute('data-bs-content', title);
             return img;
           }
+
           
           function createRadioButton(sign, value) {
             const radio = document.createElement('input');
@@ -250,15 +238,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-
         function addPrior(prior, length, last) {
             const div = document.createElement('div');
             div.id = prior;
           
             const priorText = document.createTextNode(`${prior}: `);
             div.appendChild(priorText);
+
           
             const value = document.createElement('input');
+            value.classList.add('my-2');
             value.type = 'number';
             value.name = prior;
             value.value = last ? Math.floor(100 / length) + 100 % length : parseInt(Math.floor(100 / length));
@@ -289,6 +278,7 @@ document.addEventListener('DOMContentLoaded', function () {
             div.classList.add('d-none');
           }
 
+        
         function getData() {
             const signs = document.getElementById('signs-body').children;
             const priors = document.getElementById('priors').children;
@@ -396,6 +386,7 @@ document.addEventListener('DOMContentLoaded', function () {
               img.setAttribute('data-bs-trigger', 'hover');
           }
       }
+      
 
         function clearResults(){
             var div = document.getElementById('results');

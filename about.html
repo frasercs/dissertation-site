@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html class="dark">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API Demo Site</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="about.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  
+</head>
+
+<body class="px-2 container-fluid">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand text-primary-emphasis" href="./index.html">Demonstrative Diagnosis API Wesbite</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="./index.html">Home </a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link active" href="#">About <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./diagnose.html">Diagnose</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+<div class="container-fluid">
+  <h1>
+    About the website
+  </h1>
+  <p>
+    This website is a demonstration of the use of the <a href="https://https://frasercs.pythonanywhere.com/">Demonstrative Diagnosis API</a> to diagnose an animal's condition based on the signs they are presenting."
+  </p>
+
+  <h2>
+    About the API
+  </h2>
+
+  <p>
+    The API is a RESTful API that uses a Bayes model to diagnose an animal's condition based on the signs they are presenting. The API is hosted on <a href="https://www.pythonanywhere.com/">PythonAnywhere</a> and is written in Python using the <a href="https://flask.palletsprojects.com/en/2.0.x/">Flask</a> framework. Other libraries used include <a href="https://flask-restx.readthedocs.io"> Flask-RESTX </a>, <a href="https://openpyxl.readthedocs.io/">openpyxl</a> and <a href="https://flask-cors.readthedocs.io/en/latest/">Flask-CORS</a>. The API is documented using <a href="https://swagger.io/">Swagger</a> which is automatically generated via Flask-RESTX.
+
+  </p>
+
+  <h2>
+    About the website
+  </h2>
+
+  <p>
+    The website is written in HTML, CSS and JavaScript. The website uses the <a href="https://getbootstrap.com/">Bootstrap</a> framework to provide a responsive layout. The website is hosted on <a href="https://www.netlify.com/">Netlify</a>.
+  </p>
+
+  <h3>
+    A deeper look at the website
+  </h3>
+
+  <p>
+    To make use of the functionality of the API, I used JavaScript's <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a> to make requests to the API. The API returns a JSON object which is then parsed and displayed on the page.
+  </p>
+  <p>
+    I utilise the endpoints provided by the API to get the list of signs and diseases as well as the valid animals. This allows me to dynamically generate the list of signs and diseases on the page. This means that if the API is updated with new signs or diseases, the website will automatically update to reflect this.
+  </p>
+  <p>
+    I make use of the WikiData IDs provided via the api by creating links to the WikiData page for the sign and disease. This allows the user to learn more about the condition as well as translate it to their native language.
+  </p>
+  <p>
+    I use JavaScript to dynamically generate the HTML for the page. This allows me to easily change what is on the screen depending on what data I have received from the API calls.
+  </p>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+  <script src="about.js"></script>
+</body>
+
+</html>
