@@ -53,9 +53,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     signs = json.signs;
                     console.log(signs)
                     priors = json.diseases;
+                    priors["zz_Other"] = "N/A";
                     console.log(priors)
                     populatePageSigns(signs);
                     populatePagePriors(priors);
+
                     hideLoading();
                  })["catch"](function (error) { return console.error(error); });
         }
@@ -274,7 +276,6 @@ document.addEventListener('DOMContentLoaded', function () {
             let last = false;
 
             let priorList = Object.keys(priors);
-            priorList.push('ZZ_Other')
 
           
             priorList.forEach((prior, index) => {
