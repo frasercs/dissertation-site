@@ -5,8 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const checkbox = document.getElementById('prior-checkbox');
     const diagnoseUrl = 'https://frasercs.pythonanywhere.com/api/diagnose/';
     const animalListUrl = 'https://frasercs.pythonanywhere.com/api/data/valid_animals'
-    const diseasesUrl = 'https://frasercs.pythonanywhere.com/api/data/animal_details/'
-    const signsAndCodesUrl = 'https://frasercs.pythonanywhere.com/api/data/full_sign_names_and_codes/'
+    const dataUrl = 'https://frasercs.pythonanywhere.com/api/data/full_animal_data/'
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
     if(btn && select && checkbox){
@@ -48,26 +47,18 @@ document.addEventListener('DOMContentLoaded', function () {
             var textAndCodes = null;
             var priors = null;
             
-            fetch(diseasesUrl + animal)
+            fetch(dataUrl + animal)
                 .then(function (response) { return response.json(); })
                 .then(function (json) { 
-                    signs= json.signs;
+                    signs = json.signs;
+                    console.log(signs)
                     priors = json.diseases;
+                    console.log(priors)
+                    populatePageSigns(signs);
+                    populatePagePriors(priors);
+                    hideLoading();
                  })["catch"](function (error) { return console.error(error); });
-            fetch(signsAndCodesUrl + animal)
-                .then(function (response) { return response.json(); })
-                .then(function (json) {
-                    textAndCodes = json.full_names_and_codes;
-                    
-                 })["catch"](function (error) { return console.error(error); });
-                 ;
-            setTimeout(() => {
-                hideLoading();
-                populatePageSigns(signs, textAndCodes);
-                populatePagePriors(priors)
-            }, 1000);
         }
-
         function checkboxHandler(event){
             
             var priors = document.getElementById('priors');
@@ -239,19 +230,22 @@ document.addEventListener('DOMContentLoaded', function () {
           }
 
 
-        function populatePageSigns(signs, signTexts) {
+        function populatePageSigns(signs) {
         const table = document.getElementById('signs-table');
         while (table.firstChild) {
             table.removeChild(table.firstChild);
         }
-        
-        signs.forEach((sign, i) => {
-            const signText = signTexts[sign][0];
-            const signCode = signTexts[sign][1];
+        let i = 0;
+        for (const [key, value] of Object.entries(signs)) {
+            const sign = key;
+            const signText = value.name;
+            const signCode = value.code;
             const isFirstSign = i === 0;
             addSign(sign, signText, signCode, isFirstSign);
-        });
+            i++;
         }
+        }
+
 
 
         function addPrior(prior, length, last) {
@@ -278,8 +272,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const div = document.getElementById('priors');
             div.innerHTML = '';
             let last = false;
+
+            let priorList = Object.keys(priors);
+
           
-            priors.forEach((prior, index) => {
+            priorList.forEach((prior, index) => {
               if (index === priors.length - 1) {
                 last = true;
               }
