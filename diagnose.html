@@ -1,68 +1,105 @@
 <!DOCTYPE html>
 <html class="dark">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Animal Diagnosis</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+            crossorigin="anonymous"
+        />
+        <link rel="stylesheet" type="text/css" href="diagnose.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
+        />
+    </head>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Animal Diagnosis</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="diagnose.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-  
-</head>
+    <body class="px-2 container-fluid">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <a class="navbar-brand text-primary-emphasis" href="./index.html"
+                >Demonstrative Diagnosis API Wesbite</a
+            >
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./about.html">About</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link active" href="#"
+                            >Diagnose <span class="sr-only">(current)</span></a
+                        >
+                    </li>
+                </ul>
+            </div>
+        </nav>
 
-<body class="px-2 container-fluid">
-  <nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <a class="navbar-brand text-primary-emphasis" href="./index.html">Demonstrative Diagnosis API Wesbite</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="./index.html">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="./about.html">About</a>
-        </li>
-        <li class="nav-item active">
-          <a class="nav-link active" href="#">Diagnose <span class="sr-only">(current)</span></a>
-        </li>
-      </ul>
-    </div>
-  </div>
-  </nav>
+        <div>
+            <h1>Animal Diagnosis Form</h1>
 
-  <div class="">
-    <h1 class="">Animal Diagnosis Form</h1>
+            <div>
+                <label for="animal-select">Select an option</label>
+                <select
+                    id="animal-select"
+                    class="form-select"
+                    aria-label="Dropdown to select animal"
+                >
+                    <option selected>Choose an animal</option>
+                </select>
+            </div>
+            <div id="prior-checkbox_div">
+                <input
+                    type="checkbox"
+                    id="prior-checkbox"
+                    name="prior-checkbox"
+                    value="prior-checkbox"
+                    class="form-check-input mt-0"
+                />
+                <label for="prior_checkbox"
+                    >Set your own priors (leave unchecked if you wish to allow
+                    the API to use default, equal, priors)</label
+                >
+            </div>
+            <div>
+                <div
+                    id="sign-and-prior-container"
+                    class="row align-items-start"
+                >
+                    <table id="priors" class="table"></table>
+                    <table id="signs-table" class="table"></table>
+                </div>
+            </div>
+            <div id="diagnosis-btn-div">
+                <button id="diagnosis-btn" class="btn btn-primary">
+                    Diagnose
+                </button>
+            </div>
 
-    <div>
-      <label for="animal-select">Select an option</label>
-      <select id="animal-select" class="form-select" aria-label="Dropdown to select animal">
-        <option selected>Choose an animal</option>
-      </select>
-    </div>
-    <div id="prior-checkbox_div">
-        <input type="checkbox" id="prior-checkbox" name="prior-checkbox" value="prior-checkbox" class="form-check-input mt-0">
-        <label for="prior_checkbox" class="">Set your own priors (leave unchecked if you wish to allow the API to use default, equal, priors)</label>
-    </div>
-    <div class="">
-      <div id="sign-and-prior-container" class="row align-items-start">
-          <table id="priors" class="table"></table>
-          <table id="signs-table" class="table"></table>
-      </div>
-    </div>
-    <div id="diagnosis-btn-div" class="">
-      <button id="diagnosis-btn" class="btn btn-primary">Diagnose</button>
-    </div>
+            <div id="loading"></div>
 
-    <div id="loading" class=""></div>
-
-    <div id="results" class="">
-    </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-  <script src="diagnose.js"></script>
-</body>
-
+            <div id="results"></div>
+        </div>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+            crossorigin="anonymous"
+        ></script>
+        <script src="diagnose.js"></script>
+    </body>
 </html>
