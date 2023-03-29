@@ -3,11 +3,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const btn = document.getElementById('diagnosis-btn')
     const select = document.getElementById('animal-select')
     const checkbox = document.getElementById('prior-checkbox')
-    const diagnoseUrl = 'https://frasercs.pythonanywhere.com/api/diagnose/'
+    const diagnoseUrl =
+        'https://frasercs.pythonanywhere.com/diagnosis/diagnose/'
     const animalListUrl =
-        'https://frasercs.pythonanywhere.com/api/data/valid_animals'
-    const dataUrl =
-        'https://frasercs.pythonanywhere.com/api/data/full_animal_data/'
+        'https://frasercs.pythonanywhere.com/data/valid_animals'
+    const dataUrl = 'https://frasercs.pythonanywhere.com/data/full_animal_data/'
     const tooltipTriggerList = document.querySelectorAll(
         '[data-bs-toggle="tooltip"]',
     )
@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(function (json) {
                     hideLoading()
                     displayResults(json)
+                    window.scrollTo(0, document.body.scrollHeight)
                 })
                 ['catch'](function (error) {
                     return console.error(error)
@@ -75,7 +76,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     priors['ZZ_Other'] = 'N/A'
                     populatePageSigns(signs)
                     populatePagePriors(priors)
-
                     hideLoading()
                 })
                 ['catch'](function (error) {
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
         }
         function checkboxHandler(_event) {
-            let priors = document.getElementById('priors')
+            let priors = document.getElementById('priors-table')
             if (checkbox.checked) {
                 priors.setAttribute('class', 'd-block')
             } else {
@@ -247,7 +247,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function populatePageSigns(signs) {
             clearSigns()
-            const table = document.getElementById('signs-table')
 
             let i = 0
             for (const [key, value] of Object.entries(signs)) {
@@ -260,13 +259,49 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        function addPrior(prior, length, last) {
-            const div = document.createElement('div')
-            div.id = prior
+        function createPriorsTableHead() {
+            const thead = document.createElement('thead')
+            thead.setAttribute('id', 'priors-head')
 
-            const priorText = document.createTextNode(`${prior}: `)
-            div.appendChild(priorText)
+            const row = document.createElement('tr')
+            const th1 = document.createElement('th')
+            th1.setAttribute('scope', 'col')
+            const th2 = document.createElement('th')
+            th2.setAttribute('scope', 'col')
 
+            th1.textContent = 'Disease'
+            th2.textContent = 'Prior Value'
+
+            row.appendChild(th1)
+            row.appendChild(th2)
+            thead.appendChild(row)
+
+            return thead
+        }
+
+        function createPriorsTableBody() {
+            const tbody = document.createElement('tbody')
+            tbody.setAttribute('id', 'priors-body')
+            return tbody
+        }
+
+        function addPrior(prior, length, first, last) {
+            const table = document.getElementById('priors-table')
+
+            if (first) {
+                const thead = createPriorsTableHead()
+                table.appendChild(thead)
+                const tbody = createPriorsTableBody()
+                table.appendChild(tbody)
+            }
+
+            const row = document.createElement('tr')
+            row.setAttribute('id', prior)
+            th = document.createElement('th')
+            th.appendChild(document.createTextNode(`${prior}: `))
+            row.appendChild(th)
+
+            const td = document.createElement('td')
             const value = document.createElement('input')
             value.classList.add('my-2')
             value.type = 'number'
@@ -277,31 +312,33 @@ document.addEventListener('DOMContentLoaded', function () {
             value.min = 0
             value.max = 100
             value.step = 0.1
-            div.appendChild(value)
+            td.appendChild(value)
+            row.appendChild(td)
 
-            document.getElementById('priors').appendChild(div)
+            const tbody = document.getElementById('priors-body')
+            tbody.appendChild(row)
         }
 
         function populatePagePriors(priors) {
-            const div = document.getElementById('priors')
-            div.innerHTML = ''
-            let last = false
+            clearPriors()
 
             let priorList = Object.keys(priors)
 
             priorList.forEach((prior, index) => {
-                if (index === priorList.length - 1) {
-                    last = true
+                if (index === 0) {
+                    addPrior(prior, priorList.length, true, false)
+                } else if (index === priorList.length - 1) {
+                    addPrior(prior, priorList.length, false, true)
+                } else {
+                    addPrior(prior, priorList.length, false, false)
                 }
-                addPrior(prior, priorList.length, last)
             })
-
-            div.classList.add('d-none')
+            document.getElementById('priors-table').classList.add('d-none')
         }
 
         function getData() {
             const signs = document.getElementById('signs-body').children
-            const priors = document.getElementById('priors').children
+            const priors = document.getElementById('priors-body').children
 
             const data = {
                 animal: select.value,
@@ -428,11 +465,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         function clearPriors() {
-            let div = document.getElementById('priors')
-            while (div.firstChild) {
-                div.removeChild(div.firstChild)
+            const table = document.getElementById('priors-table')
+            while (table.firstChild) {
+                table.removeChild(table.firstChild)
             }
         }
+
         function clearSigns() {
             const table = document.getElementById('signs-table')
             while (table.firstChild) {
